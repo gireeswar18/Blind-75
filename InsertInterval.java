@@ -7,7 +7,7 @@ public class InsertInterval {
 		int[][] t1 = { { 1, 3 }, { 6, 9 } };
 		int[][] t2 = { { 1, 2 }, { 3, 5 }, { 6, 7 }, { 8, 10 }, {12, 16} };
 
-		for (int[] x : insert(t1, new int[] { 2, 5 })) {
+		for (int[] x : insert(t1, new int[] { 12, 15 })) {
 			System.out.println(Arrays.toString(x));
 		}
 		System.out.println();
@@ -20,41 +20,32 @@ public class InsertInterval {
 
 	public static int[][] insert(int[][] intervals, int[] newInterval) {
 		List<int[]> list = new ArrayList<>();
-		boolean isAdded = false;
 		
-		for (int[] interval : intervals) {
-			if (!isAdded && interval[0] > newInterval[0]) {
-				list.add(newInterval);
-			}
-			list.add(interval);
+		int ind = 0;
+		int n = intervals.length;
+		
+		// adding before new interval, as there are no overlapping intervals in the test case no need to check for merging
+		while (ind < n && newInterval[0] > intervals[ind][1]) {
+			list.add(intervals[ind]);
+			ind++;
 		}
 		
-		if (!isAdded) {
-			list.add(newInterval);
+		// merging on overlaps between the start of old interval and the end of new interval
+		while (ind < n && newInterval[1] >= intervals[ind][0]) {
+			newInterval[0] = Math.min(newInterval[0], intervals[ind][0]);
+			newInterval[1] = Math.max(newInterval[1], intervals[ind][1]);
+			ind++;
+		}
+		list.add(newInterval);
+		
+		// adding after insertion of new interval
+		while (ind < n) {
+			list.add(intervals[ind]);
+			ind++;
 		}
 		
-		return merge(list);
+		return list.toArray(new int[list.size()][2]);
 	}
 	
-	public static int[][] merge(List<int[]> intervals) {
-
-		List<int[]> list = new ArrayList<>();
-
-		int[] prev = intervals.get(0);
-
-		for (int i = 1; i < intervals.size(); i++) {
-            int[] curr = intervals.get(i);
-			if (prev[1] >= curr[0]) {
-				prev[1] = Math.max(prev[1], curr[1]);
-			} 
-			else {
-				list.add(prev);
-				prev = curr;
-			}
-		}
-		
-		list.add(prev);
-
-		return list.toArray(new int[0][]);
-	}
+	
 }
